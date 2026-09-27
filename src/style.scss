@@ -1,0 +1,81 @@
+$bg: #000000;
+$surface: #1a1a1a;
+$border: #303030;
+$fg: #fdf6e3;
+$muted: #a89c72;
+$subtle: #6e6852;
+$error: #dc322f;
+$warning: #b58900;
+
+window.backdrop {
+  background: transparent;
+}
+
+.netpanel {
+  background: $bg;
+  color: $fg;
+  border: 1px solid $border;
+  font-family: gohufont, "Symbols Nerd Font", monospace;
+  font-size: 14px;
+
+  padding: 8px;
+
+  .header {
+    padding-bottom: 8px;
+    image { margin-right: 8px; }
+    .head { font-weight: bold; }
+    switch { margin-left: 8px; }
+  }
+
+  .section {
+    color: $subtle;
+    font-size: 12px;
+    margin: 8px 4px 4px;
+  }
+
+  .group {
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: 0;
+    outline: none;
+  }
+
+  .row {
+    padding: 8px;
+    &:hover { background: $border; }
+    + .row { border-top: 1px solid $border; }
+    .icon { -gtk-icon-size: 20px; margin-right: 12px; color: $muted; }
+    .name { font-weight: bold; }
+    .info, .status { color: $subtle; }
+    .lock { color: $subtle; margin-right: 4px; }
+    &.connecting .status { color: $warning; }
+    &.error { .status, .info, .icon { color: $error; } }
+  }
+
+  .form {
+    margin-bottom: 8px;
+    padding: 4px;
+    .row:hover { background: none; }
+    > box:last-child { margin-top: 8px; }
+  }
+
+  button, entry, passwordentry {
+    border-radius: 0;
+    box-shadow: none;
+    background: $bg;
+    color: $fg;
+    border: 1px solid $border;
+    padding: 2px 8px;
+    min-height: 0;
+  }
+  button.ghost { border-color: transparent; background: none; color: $muted; }
+  button.ghost:hover { color: $fg; background: $bg; }
+  button.primary { background: $fg; color: $bg; margin-left: 8px; }
+  passwordentry { padding: 6px 8px; }
+
+  .scan.scanning image { animation: spin 1s linear infinite; }
+}
+
+@keyframes spin {
+  to { -gtk-icon-transform: rotate(360deg); }
+}
