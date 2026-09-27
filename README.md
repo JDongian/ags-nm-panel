@@ -1,47 +1,37 @@
 # ags-nm-panel
 
-A Wi-Fi panel for NetworkManager on Hyprland and NixOS. Click your bar, pick a network.
-A small standalone replacement for the nm-applet menu, built with
+A Wi-Fi panel for NetworkManager, made for Hyprland on NixOS. It opens from a
+waybar button and replaces the nm-applet menu. Built with
 [AGS](https://aylur.github.io/ags/).
 
 ![The panel: active connection on top, available networks below](screenshot.png)
 
 ## Why
 
-I build my desktop out of separate parts: Hyprland, waybar, a launcher, a
-notification daemon. I don't want a desktop shell that bundles all of them
-and asks me to give up the bar I already have.
+I use Hyprland with waybar. I don't want to switch to a full desktop shell
+to get a better network menu.
 
-I like [wayle](https://github.com/wayle-rs/wayle), but only its network
-dropdown. Getting that meant adopting the whole shell.
+I like the network dropdown in [wayle](https://github.com/wayle-rs/wayle).
+wayle is a whole shell, and I only wanted that one part.
 
-nm-applet's interface is silly: a tray icon, a menu, a submenu of networks,
-and a separate dialog for the password. It works, and it looks like it came
-from another desktop.
+The nm-applet menu is silly. You click a tray icon, open a submenu to see the
+networks, and type the password into a separate dialog.
 
-So this is a network panel on its own, opened from a waybar button. It is
-inspired by wayle's, not a copy of it, and it is much simpler.
+This panel is based on wayle's network dropdown and is much simpler. It uses
+NetworkManager and the nm-applet tools wherever it can, which keeps it to
+about 400 lines of code.
 
-It is for you if:
-
-- you run waybar and intend to keep it;
-- you want one small program per job, not a shell;
-- you care what font it uses. It takes whatever GTK is set to, so bitmap
-  fonts work. The screenshot is gohufont.
-
-It stays small on purpose. NetworkManager does the work and the panel shows
-its state, in about 400 lines.
+It uses your GTK font, so bitmap fonts work. The screenshot is gohufont.
 
 ## What it does
 
 - Lists each network once, saved ones first, then by signal.
 - Joins open and saved networks in one click, and asks for the password
   inline for new ones.
-- Shows what NetworkManager is doing: each connecting step, then the address
-  and band once connected.
-- Puts a failed attempt in a notice at the top, with NetworkManager's own
-  reason, separate from your live connections.
-- Offers Disconnect, Cancel, and Forget when you hover a row.
+- Shows each connecting step, then the address and band once connected.
+- Shows a failed attempt in a notice at the top, with the reason
+  NetworkManager gave.
+- Shows Disconnect, Cancel, or Forget when you hover a row.
 - Opens `nm-connection-editor` when you click an active connection, and
   nm-applet's Connection Information from the ⓘ button.
 - Closes on Escape, a click outside, or a successful connection.
@@ -87,13 +77,13 @@ exec-once = ags-nm-panel
 layerrule = no_anim on, match:namespace ags-nm-panel
 ```
 
-`ags-nm-panel toggle` opens it under the cursor, so bind that to a bar button.
+Run `ags-nm-panel toggle` from a bar button. The panel opens under the cursor.
 
 ### Waybar
 
-`waybar/network.sh` is a bar module to go with it. It shows signal strength,
-and three icons while connecting: reaching out, negotiating, getting an
-address. It needs `nmcli`, `jq`, and a Nerd Font.
+`waybar/network.sh` is a waybar module for the panel. It shows signal
+strength, and a different icon for each of the three connecting stages. It
+needs `nmcli`, `jq`, and a Nerd Font.
 
 ```jsonc
 "custom/network": {
@@ -106,34 +96,32 @@ address. It needs `nmcli`, `jq`, and a Nerd Font.
 
 ## Passwords
 
-The panel hands the password to NetworkManager over D-Bus. It never appears
-on a command line or in a log. NetworkManager stores it in a system
-connection profile, which only root can read. There is no keyring and no
-secret agent. The field is hidden while you type, with a toggle to reveal it.
+The panel sends the password to NetworkManager over D-Bus. The password is
+never passed on a command line or written to a log. NetworkManager stores it
+in a system connection profile that only root can read. The panel does not
+use a keyring or a secret agent.
 
 ## Theme
 
-The eight colours are variables at the top of `src/style.scss`. The font is
-whatever GTK is set to.
+The colours are eight variables at the top of `src/style.scss`. The font
+comes from your GTK settings.
 
 ## Credits
 
-Inspired by the network dropdown in
-[wayle](https://github.com/wayle-rs/wayle) by Jas Singh. The layout and some
-of the wording follow it. None of the code does: wayle is Rust, this is
-TypeScript, written from scratch.
+Based on the network dropdown in [wayle](https://github.com/wayle-rs/wayle)
+by Jas Singh. The layout and some labels come from wayle. The code is new.
+wayle is written in Rust and this is TypeScript.
 
-It is also much smaller, because it does not reinvent what is already
-installed. NetworkManager fills in new connection profiles and reports its
-own failure reasons, where wayle builds and translates them itself. Editing a
-connection, enterprise login, and Connection Information are handed to
-`nm-connection-editor` and nm-applet. There are no settings, no translations,
-and no theme engine.
+This panel is much smaller than wayle's because it uses what is already
+installed. NetworkManager creates the connection profiles and reports the
+failure reasons. `nm-connection-editor` handles editing and enterprise login.
+nm-applet provides the Connection Information window. The panel has no
+settings, translations, or theme engine.
 
 ## License
 
 Copyright (C) 2026 Joshua Dong. Released under the [WTFPL](LICENSE).
 
-AGS is a build tool here and is not installed with the panel. The build
-compiles AGS's small JavaScript library into the program, and that library is
+AGS is only needed to build the panel and is not installed with it. The
+build includes AGS's JavaScript library in the program. That library is
 GPL-3.0.
