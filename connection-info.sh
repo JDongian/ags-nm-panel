@@ -24,6 +24,8 @@ for _ in $(seq 50); do
 done
 
 # A single hyprctl query can come back empty.
+command -v hyprctl >/dev/null || { trap - EXIT; exit; }
+
 misses=0
 while [ $misses -lt 3 ]; do
   sleep 1

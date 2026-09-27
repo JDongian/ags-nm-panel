@@ -11,6 +11,13 @@ const { VERTICAL } = Gtk.Orientation
 const WIDTH = 382
 const NO_FORM = { ssid: "", security: "Open" } as const
 const NO_NOTICE = { ssid: "", message: "" }
+const cursor = () => {
+  try {
+    return JSON.parse(exec("hyprctl cursorpos -j")).x
+  } catch {
+    return Infinity
+  }
+}
 const EMPTY = {
   adapter: ["network-wireless-hardware-disabled-symbolic", "No WiFi Adapter", "No wireless adapter was detected on this system"],
   off: ["network-wireless-disabled-symbolic", "WiFi is Off", "Turn on WiFi to see networks"],
@@ -32,8 +39,7 @@ export default function Panel(net: NetworkService) {
 
   const toggled = () => {
     if (!win.visible) return net.dismiss()
-    const { x } = JSON.parse(exec("hyprctl cursorpos -j"))
-    content.marginStart = Math.max(0, Math.min(x - WIDTH / 2, app.monitors[0].geometry.width - WIDTH))
+    content.marginStart = Math.max(0, Math.min(cursor() - WIDTH / 2, app.monitors[0].geometry.width - WIDTH))
     net.scan()
   }
 

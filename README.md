@@ -25,13 +25,14 @@ Hidden networks, VPN, and enterprise login are left to `nm-connection-editor`.
 ## Requirements
 
 - NetworkManager
-- Hyprland
+- A Wayland compositor with layer-shell. On Hyprland the panel opens under
+  the cursor; elsewhere it opens at the top right. Only Hyprland is tested.
 - nm-applet installed, for `nm-connection-editor` and Connection
   Information. It does not need to be running.
 
 ## Install
 
-Nix flakes only, for now.
+### Nix
 
 ```nix
 inputs.ags-nm-panel.url = "github:JDongian/ags-nm-panel";
@@ -39,6 +40,27 @@ inputs.ags-nm-panel.url = "github:JDongian/ags-nm-panel";
 
 Then add `inputs.ags-nm-panel.packages.${pkgs.system}.default` to your
 packages.
+
+### Arch
+
+A PKGBUILD is in `packaging/aur/`. It is not on the AUR yet and has not been
+built on Arch.
+
+```sh
+cd packaging/aur && makepkg -si
+```
+
+### From source
+
+You need AGS 3, Astal (`astal4`, `astal-io`), gjs, gtk4-layer-shell, libnm,
+dart-sass, and jq.
+
+```sh
+ags bundle app.ts ags-nm-panel
+install -Dm755 ags-nm-panel ~/.local/bin/ags-nm-panel
+install -Dm755 connection-info.sh ~/.local/bin/ags-nm-panel-info
+cp -r icons/hicolor ~/.local/share/icons/
+```
 
 ## Use
 
@@ -65,6 +87,13 @@ address. It needs `nmcli`, `jq`, and a Nerd Font.
     "on-click": "ags-nm-panel toggle"
 }
 ```
+
+## Passwords
+
+The panel hands the password to NetworkManager over D-Bus. It never appears
+on a command line or in a log. NetworkManager stores it in a system
+connection profile, which only root can read. There is no keyring and no
+secret agent. The field is hidden while you type, with a toggle to reveal it.
 
 ## Theme
 

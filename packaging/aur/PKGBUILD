@@ -1,0 +1,32 @@
+pkgname=ags-nm-panel-git
+pkgver=r0
+pkgrel=1
+pkgdesc="NetworkManager Wi-Fi panel for Hyprland and waybar, an nm-applet alternative built with AGS"
+arch=(x86_64)
+url="https://github.com/JDongian/ags-nm-panel"
+license=(WTFPL)
+depends=(aylurs-gtk-shell libastal-4-git libastal-io-git gjs gtk4 gtk4-layer-shell libnm network-manager-applet jq)
+makedepends=(git dart-sass)
+provides=(ags-nm-panel)
+conflicts=(ags-nm-panel)
+source=("git+$url.git")
+sha256sums=(SKIP)
+
+pkgver() {
+  cd ags-nm-panel
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+  cd ags-nm-panel
+  ags bundle app.ts ags-nm-panel
+}
+
+package() {
+  cd ags-nm-panel
+  install -Dm755 ags-nm-panel "$pkgdir/usr/bin/ags-nm-panel"
+  install -Dm755 connection-info.sh "$pkgdir/usr/bin/ags-nm-panel-info"
+  install -Dm755 waybar/network.sh "$pkgdir/usr/share/ags-nm-panel/waybar/network.sh"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 -t "$pkgdir/usr/share/icons/hicolor/scalable/status" icons/hicolor/scalable/status/*.svg
+}
