@@ -6,6 +6,31 @@ A small standalone replacement for the nm-applet menu, built with
 
 ![The panel: active connection on top, available networks below](screenshot.png)
 
+## Why
+
+I build my desktop out of separate parts: Hyprland, waybar, a launcher, a
+notification daemon. I don't want a desktop shell that bundles all of them
+and asks me to give up the bar I already have.
+
+I like [wayle](https://github.com/wayle-rs/wayle), but only its network
+dropdown. Getting that meant adopting the whole shell.
+
+nm-applet's interface is silly: a tray icon, a menu, a submenu of networks,
+and a separate dialog for the password. It works, and it looks like it came
+from another desktop.
+
+So this is wayle's network panel on its own, opened from a waybar button.
+
+It is for you if:
+
+- you run waybar and intend to keep it;
+- you want one small program per job, not a shell;
+- you care what font it uses. It takes whatever GTK is set to, so bitmap
+  fonts work. The screenshot is gohufont.
+
+It stays small on purpose. NetworkManager does the work and the panel shows
+its state, in about 400 lines.
+
 ## What it does
 
 - Lists each network once, saved ones first, then by signal.
