@@ -97,5 +97,8 @@ The layout follows the network dropdown in
 
 ## License
 
-Copyright (C) 2026 Joshua Dong. Released under the [WTFPL](LICENSE). The built
-program bundles the AGS runtime, which is GPL-3.0.
+Copyright (C) 2026 Joshua Dong. Released under the [WTFPL](LICENSE).
+
+AGS is a build tool here and is not installed with the panel. The build
+compiles AGS's small JavaScript library into the program, and that library is
+GPL-3.0.
