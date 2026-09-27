@@ -1,6 +1,6 @@
 # ags-nm-panel
 
-A Wi-Fi panel for NetworkManager on Hyprland. Click your bar, pick a network.
+A Wi-Fi panel for NetworkManager on Hyprland and NixOS. Click your bar, pick a network.
 A small standalone replacement for the nm-applet menu, built with
 [AGS](https://aylur.github.io/ags/).
 
@@ -25,8 +25,7 @@ Hidden networks, VPN, and enterprise login are left to `nm-connection-editor`.
 ## Requirements
 
 - NetworkManager
-- A Wayland compositor with layer-shell. On Hyprland the panel opens under
-  the cursor; elsewhere it opens at the top right. Only Hyprland is tested.
+- Hyprland
 - nm-applet installed, for `nm-connection-editor` and Connection
   Information. It does not need to be running.
 
@@ -40,15 +39,6 @@ inputs.ags-nm-panel.url = "github:JDongian/ags-nm-panel";
 
 Then add `inputs.ags-nm-panel.packages.${pkgs.system}.default` to your
 packages.
-
-### Arch
-
-A PKGBUILD is in `packaging/aur/`. It is not on the AUR yet and has not been
-built on Arch.
-
-```sh
-cd packaging/aur && makepkg -si
-```
 
 ### From source
 
