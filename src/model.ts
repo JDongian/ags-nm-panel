@@ -1,51 +1,42 @@
 export type Security = "Open" | "WEP" | "WPA" | "WPA2" | "WPA3" | "Enterprise"
-
-export type AccessPoint = {
-  ssid: string
-  path: string
-  strength: number
-  flags: number
-  wpa: number
-  rsn: number
-}
-
-export type Network = {
-  ssid: string
-  path: string
-  strength: number
-  security: Security
-  known: boolean
-}
-
-export type Link = { ip: string; detail: string }
-
-export type Attempt = {
-  ssid: string
-  security: Security
-  path: string
-  phase: "password" | "connecting" | "error"
-  message: string
-}
-
+export type AccessPoint = { ssid: string; strength: number; flags: number; wpa: number; rsn: number }
+export type Network = { ssid: string; icon: string; security: Security; known: boolean }
+export type Link = { ssid: string; name: string; icon: string; detail: string; phase: "connecting" | "connected" }
+export type Form = Pick<Network, "ssid" | "security">
+export type Notice = { ssid: string; message: string }
+export type Pending = { ssid: string; fresh: boolean }
 export type State = {
+  adapter: boolean
   enabled: boolean
   scanning: boolean
-  wifi: (Link & { ssid: string; strength: number }) | null
-  wired: Link | null
+  links: Link[]
   networks: Network[]
-  attempt: Attempt | null
+  form: Form | null
+  notice: Notice | null
+  pending: Pending | null
 }
 
-export const STEPS: Record<number, string> = {
-  40: "Preparing...",
-  50: "Configuring...",
-  60: "Authenticating...",
-  70: "Obtaining IP address...",
-  80: "Verifying connection...",
-  90: "Verifying connection...",
+const ACTIVATED = 100
+const FAILED = 120
+const STEPS: Record<number, [stage: number, message: string]> = {
+  40: [1, "Preparing..."],
+  50: [2, "Configuring..."],
+  60: [2, "Authenticating..."],
+  70: [3, "Obtaining IP address..."],
+  80: [3, "Verifying connection..."],
+  90: [3, "Verifying connection..."],
 }
-export const ACTIVATED = 100
-export const FAILED = 120
+
+export const link = (state: number, up: Omit<Link, "phase">): Link[] =>
+  state === ACTIVATED ? [{ ...up, phase: "connected" }]
+  : STEPS[state] ? [{ ...up, icon: `nm-panel-stage${STEPS[state][0]}-symbolic`, detail: STEPS[state][1], phase: "connecting" }]
+  : []
+
+export const settle = (s: State, state: number, reason: string, ssid: string): State =>
+  !s.pending ? s
+  : state === FAILED ? { ...s, pending: null, notice: { ssid: s.pending.ssid, message: reason } }
+  : state !== ACTIVATED ? s
+  : { ...s, pending: null, notice: ssid === s.pending.ssid ? null : { ssid: s.pending.ssid, message: `Connected to ${ssid} instead` } }
 
 const PSK = 0x100
 const ENTERPRISE = 0x200 | 0x2000
@@ -68,21 +59,14 @@ export const band = (mhz: number) =>
 export const speed = (mbps: number) =>
   mbps < 1000 ? `${mbps} Mbps` : `${+(mbps / 1000).toFixed(1)} Gbps`
 
-export function listNetworks(aps: AccessPoint[], connected: string | undefined, known: Set<string>, previous: Network[]) {
-  const best = new Map<string, Network>()
-  for (const ap of aps) {
-    const sec = security(ap)
-    if (!ap.ssid || ap.ssid === connected) continue
-    if ((best.get(ap.ssid)?.strength ?? -1) < ap.strength)
-      best.set(ap.ssid, { ssid: ap.ssid, path: ap.path, strength: ap.strength, security: sec, known: known.has(ap.ssid) })
-  }
-  const old = new Map(previous.map((n) => [n.ssid, n]))
-  return [...best.values()]
-    .sort((a, b) => b.strength - a.strength)
-    .map((n) => {
-      const p = old.get(n.ssid)
-      return p && p.known === n.known && p.security === n.security && signalIcon(p.strength) === signalIcon(n.strength)
-        ? Object.assign(p, { path: n.path })
-        : n
-    })
-}
+export const strongest = <T extends { strength: number }>(aps: T[]) => [...aps].sort((a, b) => b.strength - a.strength)
+
+export const keep = <T>(prev: T[], next: T[]) =>
+  next.map((n) => prev.find((p) => JSON.stringify(p) === JSON.stringify(n)) ?? n)
+
+export const listNetworks = (aps: AccessPoint[], connected: string, known: Set<string>): Network[] =>
+  strongest(aps)
+    .filter((ap) => ap.ssid && ap.ssid !== connected)
+    .filter((ap, i, all) => all.findIndex((o) => o.ssid === ap.ssid) === i)
+    .map((ap) => ({ ssid: ap.ssid, icon: signalIcon(ap.strength), security: security(ap), known: known.has(ap.ssid) }))
+    .sort((a, b) => +b.known - +a.known)

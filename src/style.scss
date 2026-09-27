@@ -15,21 +15,19 @@ window.backdrop {
   background: $bg;
   color: $fg;
   border: 1px solid $border;
-  font-family: gohufont, "Symbols Nerd Font", monospace;
-  font-size: 14px;
-
   padding: 8px;
 
   .header {
     padding-bottom: 8px;
-    image { margin-right: 8px; }
-    .head { font-weight: bold; }
+    button.open { font-weight: bold; background: $surface; border-color: $subtle; padding: 4px 10px; }
+    button.open:hover { background: $fg; color: $bg; }
+    button.open + button.open { margin-left: 6px; }
     switch { margin-left: 8px; }
   }
 
   .section {
     color: $subtle;
-    font-size: 12px;
+    font-size: 0.85em;
     margin: 8px 4px 4px;
   }
 
@@ -49,7 +47,7 @@ window.backdrop {
     .info, .status { color: $subtle; }
     .lock { color: $subtle; margin-right: 4px; }
     &.connecting .status { color: $warning; }
-    &.error { .status, .info, .icon { color: $error; } }
+    &.error { .info, .icon { color: $error; } }
   }
 
   .form {
@@ -59,8 +57,7 @@ window.backdrop {
     > box:last-child { margin-top: 8px; }
   }
 
-  button, entry, passwordentry {
-    border-radius: 0;
+  button, entry {
     box-shadow: none;
     background: $bg;
     color: $fg;
@@ -68,12 +65,31 @@ window.backdrop {
     padding: 2px 8px;
     min-height: 0;
   }
+  button { border-radius: 6px; }
   button.ghost { border-color: transparent; background: none; color: $muted; }
   button.ghost:hover { color: $fg; background: $bg; }
   button.primary { background: $fg; color: $bg; margin-left: 8px; }
-  passwordentry { padding: 6px 8px; }
+  button.forget:hover { color: $error; }
+  button:disabled { opacity: 0.5; }
 
-  .scan.scanning image { animation: spin 1s linear infinite; }
+  entry {
+    border-radius: 0;
+    padding: 6px 8px;
+    background: $surface;
+    &:focus-within { border-color: $fg; }
+    > text > placeholder { color: $subtle; }
+    > text > selection { background: $fg; color: $bg; }
+    image { color: $subtle; }
+  }
+
+  .empty {
+    padding: 16px;
+    image { -gtk-icon-size: 48px; color: $subtle; }
+    .empty-name { font-weight: bold; color: $muted; margin-top: 8px; }
+    .empty-hint { color: $subtle; margin-top: 4px; }
+  }
+
+  .scanning image { animation: spin 1s linear infinite; }
 }
 
 @keyframes spin {

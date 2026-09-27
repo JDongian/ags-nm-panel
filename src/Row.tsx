@@ -1,40 +1,43 @@
-import { Accessor, createState } from "ags"
+import { Accessor } from "ags"
 import { Gtk } from "ags/gtk4"
 
 type Text = string | Accessor<string>
-export type Action = { label: string; run: () => void; visible?: Accessor<boolean> }
-
 type Props = {
   icon: Text
   title: Text
   detail: Text
   status?: Text
-  lock?: boolean
   kind?: Text
-  actions?: Action[]
-  visible?: Accessor<boolean>
+  lock?: boolean
+  visible?: boolean | Accessor<boolean>
+  actions?: Record<string, () => void>
   onClicked?: () => void
 }
 
-export default function Row({ icon, title, detail, status = "", lock, kind = "", actions = [], visible, onClicked }: Props) {
-  const [hovered, setHovered] = createState(false)
+export default function Row({ icon, title, detail, status = "", kind = "", lock = false, visible = true, actions = {}, onClicked }: Props) {
+  let stack: Gtk.Stack
+  const show = (name: string) => () => stack.get_child_by_name(name) && (stack.visibleChildName = name)
   const rest = (
     <box halign={Gtk.Align.END}>
-      <image class="lock" iconName="system-lock-screen-symbolic" visible={!!lock} />
+      <image class="lock" iconName="system-lock-screen-symbolic" visible={lock} />
       <label class="status" label={status} />
     </box>
   ) as Gtk.Widget
   const buttons = (
-    <box class="actions">
-      {actions.map((a) => (
-        <button class="ghost" label={a.label} visible={a.visible ?? true} onClicked={a.run} />
+    <box>
+      {Object.entries(actions).map(([label, run]) => (
+        <button class={`ghost ${label.toLowerCase()}`} label={label} onClicked={run} />
       ))}
     </box>
   ) as Gtk.Widget
 
   return (
-    <box class={typeof kind === "string" ? `row ${kind}` : kind((k) => `row ${k}`)} visible={visible ?? true}>
-      <Gtk.EventControllerMotion onEnter={() => setHovered(true)} onLeave={() => setHovered(false)} />
+    <box
+      class={kind instanceof Accessor ? kind((k) => `row ${k}`) : `row ${kind}`}
+      visible={visible}
+      $={(self) => onClicked && self.set_cursor_from_name("pointer")}
+    >
+      <Gtk.EventControllerMotion onEnter={show("actions")} onLeave={show("rest")} />
       <Gtk.GestureClick onReleased={() => onClicked?.()} />
       <image class="icon" iconName={icon} />
       <box orientation={Gtk.Orientation.VERTICAL} hexpand valign={Gtk.Align.CENTER}>
@@ -42,14 +45,12 @@ export default function Row({ icon, title, detail, status = "", lock, kind = "",
         <label class="info" label={detail} xalign={0} ellipsize={3} />
       </box>
       <stack
-        transitionType={Gtk.StackTransitionType.CROSSFADE}
-        transitionDuration={150}
         hhomogeneous={false}
         valign={Gtk.Align.CENTER}
-        $={(stack) => {
+        $={(self) => {
+          stack = self
           stack.add_named(rest, "rest")
-          stack.add_named(buttons, "actions")
-          hovered.subscribe(() => (stack.visibleChildName = hovered.peek() && actions.length ? "actions" : "rest"))
+          if (Object.keys(actions).length) stack.add_named(buttons, "actions")
         }}
       />
     </box>

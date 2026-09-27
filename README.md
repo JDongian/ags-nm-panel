@@ -1,131 +1,82 @@
 # ags-nm-panel
 
-A standalone NetworkManager panel built with [AGS](https://aylur.github.io/ags/).
-Click a button on your bar, get a Wi-Fi panel under it.
+A Wi-Fi panel for NetworkManager on Hyprland. Click your bar, pick a network.
+A small standalone replacement for the nm-applet menu, built with
+[AGS](https://aylur.github.io/ags/).
 
-Most AGS network widgets live inside someone's full desktop shell. This one is
-a single small program you can bolt onto waybar or any other bar.
+![The panel: active connection on top, available networks below](screenshot.png)
 
-```
-┌──────────────────────────────────────┐
-│ Network                       ⟳  (●) │
-│ Active Connection                    │
-│ ┌──────────────────────────────────┐ │
-│ │ Home                   Connected │ │
-│ │ 192.168.0.12 - 5 GHz             │ │
-│ └──────────────────────────────────┘ │
-│ Available Networks                   │
-│ ┌──────────────────────────────────┐ │
-│ │ Office                     Saved │ │
-│ │ WPA2                             │ │
-│ ├──────────────────────────────────┤ │
-│ │ Cafe                           🔒 │ │
-│ │ WPA2                             │ │
-│ ├──────────────────────────────────┤ │
-│ │ Airport                          │ │
-│ │ Open                             │ │
-│ └──────────────────────────────────┘ │
-└──────────────────────────────────────┘
-```
+## What it does
 
-## Features
+- Lists each network once, saved ones first, then by signal.
+- Joins open and saved networks in one click, and asks for the password
+  inline for new ones.
+- Shows what NetworkManager is doing: each connecting step, then the address
+  and band once connected.
+- Puts a failed attempt in a notice at the top, with NetworkManager's own
+  reason, separate from your live connections.
+- Offers Disconnect, Cancel, and Forget when you hover a row.
+- Opens `nm-connection-editor` when you click an active connection, and
+  nm-applet's Connection Information from the ⓘ button.
+- Closes on Escape, a click outside, or a successful connection.
 
-- One row per network, strongest signal first.
-- Active wired and Wi-Fi connections with IP address and band or link speed.
-- One click to join open and saved networks.
-- Inline password entry for new networks.
-- Live connection steps, and NetworkManager's own reason when one fails.
-- Disconnect and Forget appear on hover.
-- Wi-Fi switch and rescan in the header; rescans every time it opens.
-- Closes on Escape, on a click outside, and after a successful connection.
-- Enterprise (802.1X) networks open `nm-connection-editor`.
+Hidden networks, VPN, and enterprise login are left to `nm-connection-editor`.
 
 ## Requirements
 
 - NetworkManager
-- Hyprland (the panel asks `hyprctl` where the cursor is, to open under it)
-- `nm-connection-editor`, only for enterprise networks
+- Hyprland
+- nm-applet installed, for `nm-connection-editor` and Connection
+  Information. It does not need to be running.
 
 ## Install
 
-With Nix flakes:
+Nix flakes only, for now.
 
 ```nix
 inputs.ags-nm-panel.url = "github:JDongian/ags-nm-panel";
-
-# then, in home-manager or your system packages:
-inputs.ags-nm-panel.packages.${pkgs.system}.default
 ```
 
-Or try it without installing:
+Then add `inputs.ags-nm-panel.packages.${pkgs.system}.default` to your
+packages.
 
-```sh
-nix run github:JDongian/ags-nm-panel &
-nix run github:JDongian/ags-nm-panel -- toggle
-```
+## Use
 
-## Usage
-
-Start it once with your session. It stays hidden until toggled.
-
-```sh
-ags-nm-panel &        # start
-ags-nm-panel toggle   # show or hide
-```
-
-Hyprland:
+Start it with your session. It stays hidden until toggled.
 
 ```
 exec-once = ags-nm-panel
+layerrule = no_anim on, match:namespace ags-nm-panel
 ```
 
-Waybar:
+`ags-nm-panel toggle` opens it under the cursor, so bind that to a bar button.
+
+### Waybar
+
+`waybar/network.sh` is a bar module to go with it. It shows signal strength,
+and three icons while connecting: reaching out, negotiating, getting an
+address. It needs `nmcli`, `jq`, and a Nerd Font.
 
 ```jsonc
-"network": {
-    "format-wifi": "{icon}",
-    "format-ethernet": "󰈀",
-    "format-disconnected": "󰤮",
-    "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
-    "tooltip-format": "{essid}\n{ifname}: {ipaddr}  {signalStrength}%",
+"custom/network": {
+    "exec": "/path/to/waybar/network.sh",
+    "return-type": "json",
+    "restart-interval": 5,
     "on-click": "ags-nm-panel toggle"
 }
 ```
 
-## Theming
+## Theme
 
-Colours are the eight variables at the top of `src/style.scss`. Change them
-and rebuild.
-
-## Development
-
-```sh
-nix develop
-ags run app.ts
-```
-
-| File | Role |
-|---|---|
-| `src/model.ts` | State types and pure helpers |
-| `src/network.ts` | NetworkManager state and actions |
-| `src/Panel.tsx` | Window layout |
-| `src/Row.tsx` | Row with hover actions |
-| `src/style.scss` | Colours and spacing |
-
-The design rule is that NetworkManager does the work and the panel shows its
-state. If NetworkManager already handles something, the panel does not.
-
-## Not supported
-
-Hidden networks, VPN, captive portal login, hotspots, editing IP or DNS
-settings, and inline enterprise login. Use `nm-connection-editor` for those.
+The eight colours are variables at the top of `src/style.scss`. The font is
+whatever GTK is set to.
 
 ## Credits
 
-The layout and wording follow the network dropdown in
+The layout follows the network dropdown in
 [wayle](https://github.com/wayle-rs/wayle) by Jas Singh.
 
 ## License
 
-[WTFPL](LICENSE). The built program bundles the AGS runtime, which is
-GPL-3.0.
+Copyright (C) 2026 Joshua Dong. Released under the [WTFPL](LICENSE). The built
+program bundles the AGS runtime, which is GPL-3.0.
