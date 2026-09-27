@@ -19,7 +19,8 @@ nm-applet's interface is silly: a tray icon, a menu, a submenu of networks,
 and a separate dialog for the password. It works, and it looks like it came
 from another desktop.
 
-So this is wayle's network panel on its own, opened from a waybar button.
+So this is a network panel on its own, opened from a waybar button. It is
+inspired by wayle's, not a copy of it, and it is much simpler.
 
 It is for you if:
 
@@ -117,8 +118,17 @@ whatever GTK is set to.
 
 ## Credits
 
-The layout follows the network dropdown in
-[wayle](https://github.com/wayle-rs/wayle) by Jas Singh.
+Inspired by the network dropdown in
+[wayle](https://github.com/wayle-rs/wayle) by Jas Singh. The layout and some
+of the wording follow it. None of the code does: wayle is Rust, this is
+TypeScript, written from scratch.
+
+It is also much smaller, because it does not reinvent what is already
+installed. NetworkManager fills in new connection profiles and reports its
+own failure reasons, where wayle builds and translates them itself. Editing a
+connection, enterprise login, and Connection Information are handed to
+`nm-connection-editor` and nm-applet. There are no settings, no translations,
+and no theme engine.
 
 ## License
 
