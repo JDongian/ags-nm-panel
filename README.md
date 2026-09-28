@@ -102,7 +102,7 @@ your GTK settings.
 
 ## Credits
 
-Based on the network dropdown in [wayle](https://github.com/wayle-rs/wayle)
+Inspired by the network dropdown in [wayle](https://github.com/wayle-rs/wayle)
 by Jas Singh. The layout and some labels come from wayle. The code is new.
 
 ## License
