@@ -4,6 +4,12 @@ import { Service, iface, method, property, signal } from "ags/dbus"
 import { Accessor } from "ags"
 import { trayIcon, trayTip, type State } from "./model"
 
+const WATCHER = "org.kde.StatusNotifierWatcher"
+const ICON = "hicolor/scalable/status/nm-panel-stage1-symbolic.svg"
+const icons = [GLib.get_user_data_dir(), ...GLib.get_system_data_dirs()]
+  .map((dir) => `${dir}/icons`)
+  .find((dir) => GLib.file_test(`${dir}/${ICON}`, GLib.FileTest.EXISTS))
+
 @iface("org.kde.StatusNotifierItem")
 class Item extends Service {
   @property("s") Category = "Hardware"
@@ -11,7 +17,7 @@ class Item extends Service {
   @property("s") Title = "Network"
   @property("s") Status = "Active"
   @property("s") IconName = ""
-  @property("s") IconThemePath = `${GLib.get_system_data_dirs()[0]}/icons`
+  @property("s") IconThemePath = icons ?? ""
   @property("(sa(iiay)ss)") ToolTip: [string, never[], string, string] = ["", [], "Network", ""]
   @signal() NewIcon() {}
   @signal() NewToolTip() {}
@@ -38,8 +44,9 @@ export default async function tray(state: Accessor<State>, clicked: (x: number) 
   }
   update()
   state.subscribe(update)
-  Gio.DBus.session.call(
-    "org.kde.StatusNotifierWatcher", "/StatusNotifierWatcher", "org.kde.StatusNotifierWatcher",
-    "RegisterStatusNotifierItem", new GLib.Variant("(s)", [name]), null, 0, -1, null, null,
-  )
+  Gio.bus_watch_name(Gio.BusType.SESSION, WATCHER, Gio.BusNameWatcherFlags.NONE, () =>
+    Gio.DBus.session.call(
+      WATCHER, "/StatusNotifierWatcher", WATCHER,
+      "RegisterStatusNotifierItem", new GLib.Variant("(s)", [name]), null, 0, -1, null, null,
+    ), null)
 }

@@ -41,7 +41,8 @@ For hidden networks, VPN, and enterprise login, use `nm-connection-editor`.
 - NetworkManager
 - Hyprland
 - A bar with a system tray, such as waybar's `tray` module
-- nm-applet, installed. It doesn't need to be running.
+- nm-applet, installed. It doesn't need to be running. The Nix package
+  includes it.
 
 ## Install
 
@@ -51,18 +52,20 @@ For hidden networks, VPN, and enterprise login, use `nm-connection-editor`.
 inputs.ags-nm-panel.url = "github:JDongian/ags-nm-panel";
 ```
 
-Then add `inputs.ags-nm-panel.packages.${pkgs.system}.default` to your
-packages.
+Then add
+`inputs.ags-nm-panel.packages.${pkgs.stdenv.hostPlatform.system}.default` to
+your packages. The flake builds for `x86_64-linux`.
 
 ### From source
 
 You need AGS 3, Astal (`astal4`, `astal-io`), gjs, gtk4-layer-shell, libnm,
-dart-sass, and jq.
+dart-sass, jq, and systemd's `busctl`. `~/.local/bin` must be on your `PATH`.
 
 ```sh
 ags bundle app.ts ags-nm-panel
 install -Dm755 ags-nm-panel ~/.local/bin/ags-nm-panel
 install -Dm755 connection-info.sh ~/.local/bin/ags-nm-panel-info
+mkdir -p ~/.local/share/icons
 cp -r icons/hicolor ~/.local/share/icons/
 ```
 

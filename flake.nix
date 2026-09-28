@@ -17,8 +17,11 @@
     packages.${system}.default = pkgs.stdenv.mkDerivation {
       pname = "ags-nm-panel";
       version = "0.1.0";
-      src = ./.;
-      nativeBuildInputs = [ pkgs.wrapGAppsHook3 pkgs.gobject-introspection astal.default ];
+      src = pkgs.lib.fileset.toSource {
+        root = ./.;
+        fileset = pkgs.lib.fileset.unions [ ./app.ts ./src ./icons ./connection-info.sh ];
+      };
+      nativeBuildInputs = [ pkgs.wrapGAppsHook4 pkgs.gobject-introspection astal.default ];
       buildInputs = [ astal.io astal.astal4 pkgs.gjs pkgs.networkmanager ];
       installPhase = ''
         mkdir -p $out/bin $out/share
@@ -29,7 +32,7 @@
       preFixup = ''
         gappsWrapperArgs+=(
           --prefix XDG_DATA_DIRS : "$out/share"
-          --prefix PATH : "$out/bin:${pkgs.lib.makeBinPath [ pkgs.networkmanagerapplet pkgs.jq pkgs.systemd pkgs.procps ]}"
+          --prefix PATH : "$out/bin:${pkgs.lib.makeBinPath [ pkgs.networkmanagerapplet pkgs.jq pkgs.systemd pkgs.coreutils pkgs.gnugrep ]}"
         )
       '';
       meta = {
