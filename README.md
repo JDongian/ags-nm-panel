@@ -1,7 +1,7 @@
 # ags-nm-panel
 
-A Wi-Fi panel for NetworkManager on Hyprland. It opens from a waybar button
-and replaces the nm-applet menu. Built with
+A Wi-Fi panel for NetworkManager on Hyprland. It opens from a tray icon and
+replaces the nm-applet menu. Built with
 [AGS](https://aylur.github.io/ags/) and packaged for NixOS.
 
 ![Screenshot of the panel](screenshot.png)
@@ -23,6 +23,8 @@ It uses your GTK font, so bitmap fonts work. The screenshot uses gohufont.
 
 ## What it does
 
+- Adds a tray icon that shows signal strength and connection progress.
+  Click it to open the panel.
 - Lists networks, saved ones first, then by signal strength.
 - Click a network to connect. New networks ask for a password in the panel.
 - Shows connection progress, then the IP address and band.
@@ -38,6 +40,7 @@ For hidden networks, VPN, and enterprise login, use `nm-connection-editor`.
 
 - NetworkManager
 - Hyprland
+- A bar with a system tray, such as waybar's `tray` module
 - nm-applet, installed. It doesn't need to be running.
 
 ## Install
@@ -72,22 +75,8 @@ exec-once = ags-nm-panel
 layerrule = no_anim on, match:namespace ags-nm-panel
 ```
 
-Toggle it from a bar button with `ags-nm-panel toggle`. It opens under the
-cursor.
-
-### Waybar
-
-`waybar/network.sh` is a waybar module that shows signal strength and
-connection progress. It needs `nmcli`, `jq`, and a Nerd Font.
-
-```jsonc
-"custom/network": {
-    "exec": "/path/to/waybar/network.sh",
-    "return-type": "json",
-    "restart-interval": 5,
-    "on-click": "ags-nm-panel toggle"
-}
-```
+The icon appears in your tray. `ags-nm-panel toggle` also opens the panel,
+for a keybind.
 
 ## Passwords
 

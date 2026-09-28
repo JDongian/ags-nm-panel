@@ -29,10 +29,11 @@ export default function Panel(net: NetworkService) {
   let win: Astal.Window
   let entry: Gtk.PasswordEntry
   let content: Gtk.Box
+  let anchor: number | undefined
 
   const toggled = () => {
     if (!win.visible) return net.dismiss()
-    const { x } = JSON.parse(exec("hyprctl cursorpos -j"))
+    const x = anchor ?? JSON.parse(exec("hyprctl cursorpos -j")).x
     content.marginStart = Math.max(0, Math.min(x - WIDTH / 2, app.monitors[0].geometry.width - WIDTH))
     net.scan()
   }
@@ -47,7 +48,7 @@ export default function Panel(net: NetworkService) {
     entry.text = ""
   }
 
-  return (
+  void (
     <window
       $={(self) => (win = self)}
       name="network"
@@ -163,4 +164,9 @@ export default function Panel(net: NetworkService) {
       </box>
     </window>
   )
+
+  return (x?: number) => {
+    anchor = x
+    win.visible = !win.visible
+  }
 }

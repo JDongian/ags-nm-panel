@@ -70,3 +70,9 @@ export const listNetworks = (aps: AccessPoint[], connected: string, known: Set<s
     .filter((ap, i, all) => all.findIndex((o) => o.ssid === ap.ssid) === i)
     .map((ap) => ({ ssid: ap.ssid, icon: signalIcon(ap.strength), security: security(ap), known: known.has(ap.ssid) }))
     .sort((a, b) => +b.known - +a.known)
+
+export const trayIcon = (s: State) =>
+  (s.links.find((l) => l.ssid) ?? s.links[0])?.icon ??
+  `network-wireless-${s.enabled ? "offline" : "disabled"}-symbolic`
+
+export const trayTip = (s: State) => s.links.map((l) => `${l.name}: ${l.detail}`).join("\n") || "Disconnected"
