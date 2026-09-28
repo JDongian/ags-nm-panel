@@ -8,7 +8,8 @@ replaces the nm-applet menu. Built with
 
 ## Why
 
-I use Hyprland with waybar and didn't want to switch to a full desktop shell.
+I use Hyprland with my own bar and didn't want to switch to a full desktop
+shell.
 
 I like the network dropdown in [wayle](https://github.com/wayle-rs/wayle),
 but wayle is a whole shell and I only wanted that part.
@@ -40,7 +41,7 @@ For hidden networks, VPN, and enterprise login, use `nm-connection-editor`.
 
 - NetworkManager
 - Hyprland
-- A bar with a system tray, such as waybar's `tray` module
+- A bar with a system tray
 - nm-applet, installed. It doesn't need to be running. The Nix package
   includes it.
 
