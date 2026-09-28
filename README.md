@@ -90,8 +90,15 @@ line or logged. The panel doesn't use a keyring or a secret agent.
 
 ## Theme
 
-Colours are variables at the top of `src/style.scss`. The font comes from
-your GTK settings.
+The font comes from your GTK settings. To change the font or colours, put
+CSS in `~/.config/ags-nm-panel/style.css`. It is applied on top of the
+built-in style.
+
+```css
+.netpanel { font-family: gohufont; font-size: 14px; }
+```
+
+The built-in style is `src/style.scss`.
 
 ## Credits
 
